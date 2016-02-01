@@ -279,12 +279,16 @@ public class JarHell {
                      * cf. https://issues.apache.org/jira/browse/LOG4J2-1560
                      */
                     return;
-                } else if (clazz.startsWith("org.apache.logging.log4j.core.jmx.Server")) {
+                }
+                if (clazz.startsWith("org.apache.logging.log4j.core.jmx.Server")) {
                     /*
                      * deliberate to hack around a bug in Log4j
                      * cf. https://issues.apache.org/jira/browse/LOG4J2-1506
                      */
                     return;
+                }
+                if (clazz.startsWith("org.apache.lucene.index.AssertingLeafReader")) {
+                    return; // overwritten to disable thread-change assertion
                 }
                 throw new IllegalStateException("jar hell!" + System.lineSeparator() +
                         "class: " + clazz + System.lineSeparator() +
