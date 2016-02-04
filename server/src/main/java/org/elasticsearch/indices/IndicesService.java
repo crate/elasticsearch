@@ -1400,4 +1400,8 @@ public class IndicesService extends AbstractLifecycleComponent
         }
         return Optional.empty();
     }
+
+    public MapperRegistry getMapperRegistry() {
+        return mapperRegistry;
+    }
 }
