@@ -35,9 +35,7 @@ import org.hamcrest.Matchers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.FileSystemException;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,7 +53,6 @@ import java.util.zip.ZipOutputStream;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasToString;
-import static org.hamcrest.Matchers.instanceOf;
 
 @LuceneTestCase.SuppressFileSystems(value = "ExtrasFS")
 public class PluginsServiceTests extends ESTestCase {
@@ -108,9 +105,7 @@ public class PluginsServiceTests extends ESTestCase {
     public void testExistingPluginMissingDescriptor() throws Exception {
         Path pluginsDir = createTempDir();
         Files.createDirectory(pluginsDir.resolve("plugin-missing-descriptor"));
-        IllegalStateException e = expectThrows(IllegalStateException.class, () -> PluginsService.getPluginBundles(pluginsDir));
-        assertThat(e.getMessage(),
-                   containsString("Could not load plugin descriptor for plugin directory [plugin-missing-descriptor]"));
+        PluginsService.getPluginBundles(pluginsDir);
     }
 
     public void testFilterPlugins() {
@@ -132,13 +127,7 @@ public class PluginsServiceTests extends ESTestCase {
                         .build();
         final Path hidden = home.resolve("plugins").resolve(".hidden");
         Files.createDirectories(hidden);
-        @SuppressWarnings("unchecked")
-        final IllegalStateException e = expectThrows(
-                IllegalStateException.class,
-                () -> newPluginsService(settings));
-
-        final String expected = "Could not load plugin descriptor for plugin directory [.hidden]";
-        assertThat(e, hasToString(containsString(expected)));
+        newPluginsService(settings);
     }
 
     public void testDesktopServicesStoreFiles() throws IOException {
@@ -151,20 +140,8 @@ public class PluginsServiceTests extends ESTestCase {
         Files.createDirectories(plugins);
         final Path desktopServicesStore = plugins.resolve(".DS_Store");
         Files.createFile(desktopServicesStore);
-        if (Constants.MAC_OS_X) {
-            @SuppressWarnings("unchecked") final PluginsService pluginsService = newPluginsService(settings);
-            assertNotNull(pluginsService);
-        } else {
-            final IllegalStateException e = expectThrows(IllegalStateException.class, () -> newPluginsService(settings));
-            assertThat(e.getMessage(), containsString("Could not load plugin descriptor for plugin directory [.DS_Store]"));
-            assertNotNull(e.getCause());
-            assertThat(e.getCause(), instanceOf(FileSystemException.class));
-            if (Constants.WINDOWS) {
-                assertThat(e.getCause(), instanceOf(NoSuchFileException.class));
-            } else {
-                assertThat(e.getCause(), hasToString(containsString("Not a directory")));
-            }
-        }
+        @SuppressWarnings("unchecked") final PluginsService pluginsService = newPluginsService(settings);
+        assertNotNull(pluginsService);
     }
 
     public void testStartupWithRemovingMarker() throws IOException {

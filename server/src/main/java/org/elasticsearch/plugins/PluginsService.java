@@ -51,7 +51,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,6 +70,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.elasticsearch.common.io.FileSystemUtils.isAccessibleDirectory;
+import static org.elasticsearch.plugins.PluginInfo.ES_PLUGIN_PROPERTIES;
 
 public class PluginsService extends AbstractComponent {
 
@@ -317,14 +317,18 @@ public class PluginsService extends AbstractComponent {
         if (Files.exists(rootPath)) {
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(rootPath)) {
                 for (Path plugin : stream) {
+                    if (FileSystemUtils.isHidden(plugin)) {
+                        continue;
+                    }
                     if (FileSystemUtils.isDesktopServicesStore(plugin) ||
                         plugin.getFileName().toString().startsWith(".removing-")) {
                         continue;
                     }
                     if (seen.add(plugin.getFileName().toString()) == false) {
                         throw new IllegalStateException("duplicate plugin: " + plugin);
+                    } else if (Files.exists(plugin.resolve(ES_PLUGIN_PROPERTIES))) {
+                        plugins.add(plugin);
                     }
-                    plugins.add(plugin);
                 }
             }
         }
