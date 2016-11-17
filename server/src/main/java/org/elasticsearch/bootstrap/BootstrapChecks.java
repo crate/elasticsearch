@@ -702,7 +702,10 @@ final class BootstrapChecks {
 
         boolean isAllPermissionGranted() {
             final SecurityManager sm = System.getSecurityManager();
-            assert sm != null;
+            if (sm == null) {
+                // SecurityManager is disabled we also don't want to fail because of this Bootstrap check
+                return false;
+            }
             try {
                 sm.checkPermission(new AllPermission());
             } catch (final SecurityException e) {

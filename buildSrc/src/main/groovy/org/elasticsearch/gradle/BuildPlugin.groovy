@@ -804,7 +804,7 @@ class BuildPlugin implements Plugin<Project> {
             systemProperty 'tests.gradle', 'true'
             systemProperty 'tests.artifact', project.name
             systemProperty 'tests.task', path
-            systemProperty 'tests.security.manager', 'true'
+            systemProperty 'tests.security.manager', 'false'
             systemProperty 'jna.nosys', 'true'
             // TODO: remove this deprecation compatibility setting for 7.0
             systemProperty 'es.aggregations.enable_scripted_metric_agg_param', 'false'
