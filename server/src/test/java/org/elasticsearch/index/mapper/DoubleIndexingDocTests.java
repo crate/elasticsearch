@@ -56,8 +56,7 @@ public class DoubleIndexingDocTests extends ESSingleNodeTestCase {
                         .field("field1", "value1")
                         .field("field2", 1)
                         .field("field3", 1.1)
-                        .field("field4", "2010-01-01")
-                        .startArray("field5").value(1).value(2).value(3).endArray()
+                        .startArray("field4").value(1).value(2).value(3).endArray()
                         .endObject()),
                 XContentType.JSON));
         assertNotNull(doc.dynamicMappingsUpdate());
@@ -79,17 +78,15 @@ public class DoubleIndexingDocTests extends ESSingleNodeTestCase {
         topDocs = searcher.search(mapperService.fullName("field3").termQuery("1.1", context), 10);
         assertThat(topDocs.totalHits, equalTo(2L));
 
-        topDocs = searcher.search(mapperService.fullName("field4").termQuery("2010-01-01", context), 10);
+        topDocs = searcher.search(mapperService.fullName("field4").termQuery("1", context), 10);
         assertThat(topDocs.totalHits, equalTo(2L));
 
-        topDocs = searcher.search(mapperService.fullName("field5").termQuery("1", context), 10);
+        topDocs = searcher.search(mapperService.fullName("field4").termQuery("2", context), 10);
         assertThat(topDocs.totalHits, equalTo(2L));
 
-        topDocs = searcher.search(mapperService.fullName("field5").termQuery("2", context), 10);
+        topDocs = searcher.search(mapperService.fullName("field4").termQuery("3", context), 10);
         assertThat(topDocs.totalHits, equalTo(2L));
 
-        topDocs = searcher.search(mapperService.fullName("field5").termQuery("3", context), 10);
-        assertThat(topDocs.totalHits, equalTo(2L));
         writer.close();
         reader.close();
         dir.close();

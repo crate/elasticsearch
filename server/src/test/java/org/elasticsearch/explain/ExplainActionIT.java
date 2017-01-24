@@ -247,7 +247,8 @@ public class ExplainActionIT extends ESIntegTestCase {
     }
 
     public void testExplainDateRangeInQueryString() {
-        createIndex("test");
+        assertAcked(prepareCreate("test")
+            .addMapping("type", "past", "type=date", "future", "type=date"));
 
         ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
         String aMonthAgo = DateTimeFormatter.ISO_LOCAL_DATE.format(now.minusMonths(1));

@@ -1263,28 +1263,6 @@ public class DocumentParserTests extends ESSingleNodeTestCase {
         assertThat(dateMapper, not(instanceOf(DateFieldMapper.class)));
     }
 
-    public void testDynamicDateDetectionEnabledWithNoSpecialCharacters() throws IOException {
-        DocumentMapperParser mapperParser = createIndex("test").mapperService().documentMapperParser();
-        String mapping = Strings.toString(XContentFactory.jsonBuilder().startObject().startObject("type")
-                .startArray("dynamic_date_formats")
-                    .value("yyyy MM")
-                .endArray().endObject().endObject());
-        DocumentMapper mapper = mapperParser.parse("type", new CompressedXContent(mapping));
-
-        BytesReference bytes = BytesReference.bytes(XContentFactory.jsonBuilder()
-            .startObject()
-                .field("foo", "2016 12")
-            .endObject());
-
-        // We should have generated a date field
-        ParsedDocument doc = mapper.parse(SourceToParse.source("test", "type", "1", bytes, XContentType.JSON));
-        Mapping update = doc.dynamicMappingsUpdate();
-        assertNotNull(update);
-        Mapper dateMapper = update.root().getMapper("foo");
-        assertNotNull(dateMapper);
-        assertThat(dateMapper, instanceOf(DateFieldMapper.class));
-    }
-
     public void testDynamicFieldsStartingAndEndingWithDot() throws Exception {
         BytesReference bytes = BytesReference.bytes(XContentFactory.jsonBuilder().startObject().startArray("top.")
                 .startObject().startArray("foo.")
