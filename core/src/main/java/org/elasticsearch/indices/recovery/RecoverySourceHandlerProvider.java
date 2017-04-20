@@ -36,6 +36,7 @@ public interface RecoverySourceHandlerProvider {
                               StartRecoveryRequest request,
                               RemoteRecoveryTargetHandler recoveryTarget,
                               Function<String, Releasable> delayNewRecoveries,
+                              int fileChunkSizeInBytes,
                               Supplier<Long> currentClusterStateVersionSupplier,
                               Logger logger);
 }
