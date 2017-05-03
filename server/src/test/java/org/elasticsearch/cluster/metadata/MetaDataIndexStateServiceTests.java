@@ -25,6 +25,7 @@ import org.elasticsearch.cluster.ClusterState;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.cluster.node.DiscoveryNodes;
 import org.elasticsearch.cluster.shards.ClusterShardLimitIT;
+import org.elasticsearch.common.UUIDs;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.logging.DeprecationLogger;
 import org.elasticsearch.common.settings.Settings;
@@ -74,12 +75,16 @@ public class MetaDataIndexStateServiceTests extends ESTestCase {
         when(nodes.getDataNodes()).thenReturn(dataNodes.build());
 
         IndexMetaData.Builder openIndexMetaData = IndexMetaData.builder(randomAlphaOfLengthBetween(5, 15))
-            .settings(Settings.builder().put(IndexMetaData.SETTING_VERSION_CREATED, Version.CURRENT))
+            .settings(Settings.builder()
+                .put(IndexMetaData.SETTING_INDEX_UUID, UUIDs.randomBase64UUID())
+                .put(IndexMetaData.SETTING_VERSION_CREATED, Version.CURRENT))
             .creationDate(randomLong())
             .numberOfShards(openIndexShards)
             .numberOfReplicas(openIndexReplicas);
         IndexMetaData.Builder closedIndexMetaData = IndexMetaData.builder(randomAlphaOfLengthBetween(5, 15))
-            .settings(Settings.builder().put(IndexMetaData.SETTING_VERSION_CREATED, Version.CURRENT))
+            .settings(Settings.builder()
+                .put(IndexMetaData.SETTING_INDEX_UUID, UUIDs.randomBase64UUID())
+                .put(IndexMetaData.SETTING_VERSION_CREATED, Version.CURRENT))
             .creationDate(randomLong())
             .state(IndexMetaData.State.CLOSE)
             .numberOfShards(closedIndexShards)

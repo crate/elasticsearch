@@ -449,9 +449,9 @@ public class SharedClusterSnapshotRestoreIT extends AbstractSnapshotIntegTestCas
         Client client = client();
 
         Settings repoSettings = Settings.builder().put("location", randomRepoPath()).build();
-        AcknowledgedResponse putRepositoryResponse = client.admin().cluster().preparePutRepository("test-repo")
+        AcknowledgedResponse response = client.admin().cluster().preparePutRepository("test-repo")
             .setType("fs").setSettings(repoSettings).get();
-        assertThat(putRepositoryResponse.isAcknowledged(), equalTo(true));
+        assertThat(response.isAcknowledged(), equalTo(true));
 
         RepositoryMetaData metaData = new RepositoryMetaData("test-repo", "fs", repoSettings);
         assertBusy(() -> {

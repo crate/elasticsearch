@@ -22,6 +22,7 @@ package org.elasticsearch.indices.analysis;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.elasticsearch.Version;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.test.ESIntegTestCase;
@@ -75,7 +76,7 @@ public class PreBuiltAnalyzerIntegrationIT extends ESIntegTestCase {
                 .endObject()
                 .endObject();
 
-            Settings versionSettings = settings(randomVersion).build();
+            Settings versionSettings = Settings.builder().put(IndexMetaData.SETTING_VERSION_CREATED, randomVersion).build();
             client().admin().indices().prepareCreate(indexName).addMapping("type", mapping).setSettings(versionSettings).get();
         }
 
