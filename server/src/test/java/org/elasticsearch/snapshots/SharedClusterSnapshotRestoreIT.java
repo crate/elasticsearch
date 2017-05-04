@@ -57,6 +57,7 @@ import org.elasticsearch.cluster.block.ClusterBlocks;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.cluster.metadata.MetaDataIndexStateService;
+import org.elasticsearch.cluster.metadata.RepositoryMetaData;
 import org.elasticsearch.cluster.routing.IndexRoutingTable;
 import org.elasticsearch.cluster.routing.RecoverySource;
 import org.elasticsearch.cluster.routing.ShardRouting;
@@ -442,6 +443,25 @@ public class SharedClusterSnapshotRestoreIT extends AbstractSnapshotIntegTestCas
         assertThat(createSnapshotResponse.getSnapshotInfo().successfulShards(), equalTo(0));
 
         assertThat(client.admin().cluster().prepareGetSnapshots("test-repo").setSnapshots("test-snap").get().getSnapshots().get(0).state(), equalTo(SnapshotState.SUCCESS));
+    }
+
+    public void testGetRepositoriesList() throws Exception {
+        Client client = client();
+
+        Settings repoSettings = Settings.builder().put("location", randomRepoPath()).build();
+        AcknowledgedResponse putRepositoryResponse = client.admin().cluster().preparePutRepository("test-repo")
+            .setType("fs").setSettings(repoSettings).get();
+        assertThat(putRepositoryResponse.isAcknowledged(), equalTo(true));
+
+        RepositoryMetaData metaData = new RepositoryMetaData("test-repo", "fs", repoSettings);
+        assertBusy(() -> {
+            for (RepositoriesService repositoriesService : internalCluster().getDataNodeInstances(RepositoriesService.class)) {
+                Collection<Repository> repos = repositoriesService.getRepositoriesList();
+                // iterator contains only one element which has the same meta data
+                assertThat(repos.size(), is(1));
+                assertThat(repos.iterator().next().getMetadata(), is(metaData));
+            }
+        }, 5, TimeUnit.SECONDS);
     }
 
     public void testRestoreAliases() throws Exception {
