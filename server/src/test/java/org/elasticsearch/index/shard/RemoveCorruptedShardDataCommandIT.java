@@ -113,6 +113,7 @@ public class RemoveCorruptedShardDataCommandIT extends ESIntegTestCase {
         assertAcked(prepareCreate(indexName).setSettings(Settings.builder()
             .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
             .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0)
+            .put(IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS, false)
             .put(MergePolicyConfig.INDEX_MERGE_ENABLED, false)
             .put(IndexSettings.INDEX_REFRESH_INTERVAL_SETTING.getKey(), "-1")
             .put(MockEngineSupport.DISABLE_FLUSH_ON_CLOSE.getKey(), true)
@@ -261,6 +262,7 @@ public class RemoveCorruptedShardDataCommandIT extends ESIntegTestCase {
         assertAcked(prepareCreate(indexName).setSettings(Settings.builder()
             .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
             .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 1)
+            .put(IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS, false)
             .put(IndexSettings.INDEX_REFRESH_INTERVAL_SETTING.getKey(), "-1")
             .put(MockEngineSupport.DISABLE_FLUSH_ON_CLOSE.getKey(), true) // never flush - always recover from translog
             .put("index.routing.allocation.exclude._name", node2)
@@ -440,6 +442,7 @@ public class RemoveCorruptedShardDataCommandIT extends ESIntegTestCase {
         assertAcked(prepareCreate(indexName).setSettings(Settings.builder()
             .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
             .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 1)
+            .put(IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS, false)
             .put(IndexSettings.INDEX_REFRESH_INTERVAL_SETTING.getKey(), "-1")
             .put(MockEngineSupport.DISABLE_FLUSH_ON_CLOSE.getKey(), true) // never flush - always recover from translog
             .put("index.routing.allocation.exclude._name", node2)
@@ -555,6 +558,7 @@ public class RemoveCorruptedShardDataCommandIT extends ESIntegTestCase {
         final String indexName = "test" + randomInt(100);
         assertAcked(prepareCreate(indexName).setSettings(Settings.builder()
             .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
+            .put(IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS, false)
             .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, numOfNodes - 1)
         ));
         flush(indexName);

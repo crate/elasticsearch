@@ -42,7 +42,7 @@ for (Version version : bwcVersions.wireCompatible) {
   Object extension = extensions.findByName("${baseName}#mixedClusterTestCluster")
   configure(extension) {
     numNodes = 4
-    numBwcNodes = 2
+    numBwcNodes = 0
     bwcVersion = version
 
     setting 'logger.level', 'DEBUG'

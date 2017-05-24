@@ -44,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.Collections.singleton;
+import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS;
 import static org.elasticsearch.cluster.routing.DelayedAllocationService.CLUSTER_UPDATE_TASK_SOURCE;
 import static org.elasticsearch.cluster.routing.ShardRoutingState.INITIALIZING;
 import static org.elasticsearch.cluster.routing.ShardRoutingState.STARTED;
@@ -81,6 +82,7 @@ public class DelayedAllocationServiceTests extends ESAllocationTestCase {
     public void testNoDelayedUnassigned() throws Exception {
         MetaData metaData = MetaData.builder()
             .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)
+                .put(SETTING_AUTO_EXPAND_REPLICAS, false)
                 .put(UnassignedInfo.INDEX_DELAYED_NODE_LEFT_TIMEOUT_SETTING.getKey(), "0"))
                 .numberOfShards(1).numberOfReplicas(1))
             .build();
@@ -123,6 +125,7 @@ public class DelayedAllocationServiceTests extends ESAllocationTestCase {
         TimeValue delaySetting = timeValueMillis(100);
         MetaData metaData = MetaData.builder()
             .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)
+                .put(SETTING_AUTO_EXPAND_REPLICAS, false)
                 .put(UnassignedInfo.INDEX_DELAYED_NODE_LEFT_TIMEOUT_SETTING.getKey(), delaySetting))
                 .numberOfShards(1).numberOfReplicas(1))
             .build();
@@ -214,10 +217,16 @@ public class DelayedAllocationServiceTests extends ESAllocationTestCase {
         TimeValue longDelaySetting = TimeValue.timeValueSeconds(1);
         MetaData metaData = MetaData.builder()
             .put(IndexMetaData.builder("short_delay")
-                .settings(settings(Version.CURRENT).put(UnassignedInfo.INDEX_DELAYED_NODE_LEFT_TIMEOUT_SETTING.getKey(), shortDelaySetting))
+                .settings(settings(Version.CURRENT)
+                    .put(UnassignedInfo.INDEX_DELAYED_NODE_LEFT_TIMEOUT_SETTING.getKey(), shortDelaySetting)
+                    .put(SETTING_AUTO_EXPAND_REPLICAS, false)
+                )
                 .numberOfShards(1).numberOfReplicas(1))
             .put(IndexMetaData.builder("long_delay")
-                .settings(settings(Version.CURRENT).put(UnassignedInfo.INDEX_DELAYED_NODE_LEFT_TIMEOUT_SETTING.getKey(), longDelaySetting))
+                .settings(settings(Version.CURRENT)
+                    .put(UnassignedInfo.INDEX_DELAYED_NODE_LEFT_TIMEOUT_SETTING.getKey(), longDelaySetting)
+                    .put(SETTING_AUTO_EXPAND_REPLICAS, false)
+                )
                 .numberOfShards(1).numberOfReplicas(1))
             .build();
         ClusterState clusterState = ClusterState.builder(ClusterName.CLUSTER_NAME_SETTING.getDefault(Settings.EMPTY)).metaData(metaData)

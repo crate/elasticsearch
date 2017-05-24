@@ -331,14 +331,18 @@ public class UpdateNumberOfReplicasIT extends ESIntegTestCase {
     }
 
     public void testUpdateNumberOfReplicasAllowNoIndices() {
-        createIndex("test-index", Settings.builder().put("index.number_of_replicas", 0).build());
+        createIndex("test-index", Settings.builder()
+            .put(IndexMetaData.SETTING_WAIT_FOR_ACTIVE_SHARDS.getKey(), 1)
+            .put(IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS, false)
+            .put("index.number_of_replicas", 0).build());
         final IndicesOptions options =
                 new IndicesOptions(EnumSet.of(IndicesOptions.Option.ALLOW_NO_INDICES), EnumSet.of(IndicesOptions.WildcardStates.OPEN));
         assertAcked(client()
                 .admin()
                 .indices()
                 .prepareUpdateSettings("non-existent-*")
-                .setSettings(Settings.builder().put("index.number_of_replicas", 1))
+                .setSettings(Settings.builder()
+                    .put("index.number_of_replicas", 1))
                 .setIndicesOptions(options)
                 .get());
         final int numberOfReplicas = Integer.parseInt(

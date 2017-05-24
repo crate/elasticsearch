@@ -45,6 +45,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.elasticsearch.cluster.ClusterName.CLUSTER_NAME_SETTING;
+import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS;
 import static org.elasticsearch.cluster.routing.ShardRoutingState.INITIALIZING;
 import static org.elasticsearch.cluster.routing.ShardRoutingState.RELOCATING;
 import static org.elasticsearch.cluster.routing.ShardRoutingState.STARTED;
@@ -222,7 +223,8 @@ public class FailedShardsRoutingTests extends ESAllocationTestCase {
         logger.info("Building initial routing table");
 
         MetaData metaData = MetaData.builder()
-                .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)).numberOfShards(1).numberOfReplicas(1))
+                .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)
+                    .put(SETTING_AUTO_EXPAND_REPLICAS, false)).numberOfShards(1).numberOfReplicas(1))
                 .build();
 
         RoutingTable initialRoutingTable = RoutingTable.builder()
@@ -475,7 +477,9 @@ public class FailedShardsRoutingTests extends ESAllocationTestCase {
                 .build());
 
         MetaData metaData = MetaData.builder()
-                .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)).numberOfShards(1).numberOfReplicas(2))
+                .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)
+                    .put(SETTING_AUTO_EXPAND_REPLICAS, false)
+                ).numberOfShards(1).numberOfReplicas(2))
                 .build();
 
         RoutingTable routingTable = RoutingTable.builder()
@@ -524,7 +528,8 @@ public class FailedShardsRoutingTests extends ESAllocationTestCase {
                 .build());
 
         MetaData metaData = MetaData.builder()
-                .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)).numberOfShards(1).numberOfReplicas(2))
+                .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)
+                    .put(SETTING_AUTO_EXPAND_REPLICAS, false)).numberOfShards(1).numberOfReplicas(2))
                 .build();
 
         RoutingTable routingTable = RoutingTable.builder()
@@ -564,7 +569,8 @@ public class FailedShardsRoutingTests extends ESAllocationTestCase {
         AllocationService allocation = createAllocationService(Settings.builder().build());
 
         MetaData metaData = MetaData.builder().put(IndexMetaData.builder("test")
-                .settings(settings(Version.CURRENT)).numberOfShards(1).numberOfReplicas(3)) .build();
+                .settings(settings(Version.CURRENT).put(SETTING_AUTO_EXPAND_REPLICAS, false)
+                ).numberOfShards(1).numberOfReplicas(3)) .build();
 
         RoutingTable initialRoutingTable = RoutingTable.builder().addAsNew(metaData.index("test")).build();
 

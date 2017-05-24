@@ -39,6 +39,7 @@ import org.elasticsearch.common.settings.Settings;
 import java.util.EnumSet;
 import java.util.List;
 
+import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS;
 import static org.elasticsearch.cluster.routing.ShardRoutingState.INITIALIZING;
 import static org.elasticsearch.cluster.routing.ShardRoutingState.RELOCATING;
 import static org.elasticsearch.cluster.routing.ShardRoutingState.STARTED;
@@ -254,7 +255,8 @@ public class EnableAllocationTests extends ESAllocationTestCase {
 
         logger.info("Building initial routing table");
         MetaData metaData = MetaData.builder()
-                .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT).put(indexSettings)).numberOfShards(6).numberOfReplicas(0))
+                .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT).put(indexSettings)
+                    .put(SETTING_AUTO_EXPAND_REPLICAS, false)).numberOfShards(6).numberOfReplicas(0))
                 .build();
 
         RoutingTable initialRoutingTable = RoutingTable.builder()

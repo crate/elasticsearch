@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
@@ -53,7 +54,7 @@ public class StartedShardsRoutingTests extends ESAllocationTestCase {
         logger.info("--> building initial cluster state");
         AllocationId allocationId = AllocationId.newRelocation(AllocationId.newInitializing());
         final IndexMetaData indexMetaData = IndexMetaData.builder("test")
-                .settings(settings(Version.CURRENT))
+                .settings(settings(Version.CURRENT).put(SETTING_AUTO_EXPAND_REPLICAS, false))
                 .numberOfShards(2).numberOfReplicas(0)
                 .putInSyncAllocationIds(1, Collections.singleton(allocationId.getId()))
                 .build();

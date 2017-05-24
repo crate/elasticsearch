@@ -159,6 +159,7 @@ import java.util.stream.Stream;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS;
 import static org.elasticsearch.common.util.CollectionUtils.arrayAsArrayList;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -947,6 +948,7 @@ public abstract class ESTestCase extends LuceneTestCase {
     public static Settings.Builder settings(Version version, String uuid) {
         Settings.Builder builder = Settings.builder()
             .put(IndexMetaData.SETTING_VERSION_CREATED, version)
+            .put(SETTING_AUTO_EXPAND_REPLICAS, false)
             .put(IndexMetaData.SETTING_INDEX_UUID, uuid);
         return builder;
     }

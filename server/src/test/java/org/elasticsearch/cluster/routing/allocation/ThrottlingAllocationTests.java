@@ -55,6 +55,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.elasticsearch.cluster.ClusterName.CLUSTER_NAME_SETTING;
+import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS;
 import static org.elasticsearch.cluster.routing.ShardRoutingState.INITIALIZING;
 import static org.elasticsearch.cluster.routing.ShardRoutingState.RELOCATING;
 import static org.elasticsearch.cluster.routing.ShardRoutingState.STARTED;
@@ -75,7 +76,9 @@ public class ThrottlingAllocationTests extends ESAllocationTestCase {
         logger.info("Building initial routing table");
 
         MetaData metaData = MetaData.builder()
-                .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)).numberOfShards(10).numberOfReplicas(1))
+                .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)
+                    .put(SETTING_AUTO_EXPAND_REPLICAS, false)
+                ).numberOfShards(10).numberOfReplicas(1))
                 .build();
 
         ClusterState clusterState = createRecoveryStateAndInitalizeAllocations(metaData, gatewayAllocator);
@@ -129,7 +132,9 @@ public class ThrottlingAllocationTests extends ESAllocationTestCase {
         logger.info("Building initial routing table");
 
         MetaData metaData = MetaData.builder()
-                .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)).numberOfShards(5).numberOfReplicas(1))
+                .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)
+                    .put(SETTING_AUTO_EXPAND_REPLICAS, false)
+                ).numberOfShards(5).numberOfReplicas(1))
                 .build();
 
         ClusterState clusterState = createRecoveryStateAndInitalizeAllocations(metaData, gatewayAllocator);
@@ -189,7 +194,9 @@ public class ThrottlingAllocationTests extends ESAllocationTestCase {
         logger.info("Building initial routing table");
 
         MetaData metaData = MetaData.builder()
-            .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)).numberOfShards(9).numberOfReplicas(0))
+            .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)
+                .put(SETTING_AUTO_EXPAND_REPLICAS, false)
+            ).numberOfShards(9).numberOfReplicas(0))
             .build();
 
         ClusterState clusterState = createRecoveryStateAndInitalizeAllocations(metaData, gatewayAllocator);
@@ -245,7 +252,9 @@ public class ThrottlingAllocationTests extends ESAllocationTestCase {
         logger.info("Building initial routing table");
 
         MetaData metaData = MetaData.builder()
-            .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)).numberOfShards(1).numberOfReplicas(2))
+            .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)
+                .put(SETTING_AUTO_EXPAND_REPLICAS, false)
+            ).numberOfShards(1).numberOfReplicas(2))
             .build();
 
         ClusterState clusterState = createRecoveryStateAndInitalizeAllocations(metaData, gatewayAllocator);

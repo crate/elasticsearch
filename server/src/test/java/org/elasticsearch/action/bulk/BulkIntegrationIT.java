@@ -30,6 +30,7 @@ import org.elasticsearch.test.ESIntegTestCase;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.elasticsearch.test.StreamsUtils.copyToStringFromClasspath;
@@ -53,7 +54,9 @@ public class BulkIntegrationIT extends ESIntegTestCase {
      * an alias pointing to multiple indices, while a write index exits.
      */
     public void testBulkWithWriteIndexAndRouting() {
-        Map<String, Integer> twoShardsSettings = Collections.singletonMap(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 2);
+        Map<String, Object> twoShardsSettings = new HashMap<>();
+        twoShardsSettings.put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 2);
+        twoShardsSettings.put(IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS, false);
         client().admin().indices().prepareCreate("index1")
             .addAlias(new Alias("alias1").indexRouting("0")).setSettings(twoShardsSettings).get();
         client().admin().indices().prepareCreate("index2")

@@ -18,16 +18,6 @@
  */
 package org.elasticsearch.indices.flush;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
 import org.apache.lucene.index.Term;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.flush.FlushRequest;
@@ -57,6 +47,16 @@ import org.elasticsearch.index.shard.IndexShardTestCase;
 import org.elasticsearch.index.shard.ShardId;
 import org.elasticsearch.indices.IndicesService;
 import org.elasticsearch.test.ESIntegTestCase;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertAcked;
 import static org.hamcrest.Matchers.emptyIterable;
@@ -103,7 +103,10 @@ public class FlushIT extends ESIntegTestCase {
 
     public void testSyncedFlush() throws Exception {
         internalCluster().ensureAtLeastNumDataNodes(2);
-        prepareCreate("test").setSettings(Settings.builder().put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)).get();
+        prepareCreate("test").setSettings(Settings.builder()
+            .put(IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS, false)
+            .put(IndexMetaData.SETTING_WAIT_FOR_ACTIVE_SHARDS.getKey(), 1)
+            .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)).get();
         ensureGreen();
 
         final Index index = client().admin().cluster().prepareState().get().getState().metaData().index("test").getIndex();
@@ -251,6 +254,7 @@ public class FlushIT extends ESIntegTestCase {
         assertAcked(
             prepareCreate("test").setSettings(Settings.builder()
                 .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
+                .put(IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS, false)
                 .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, numberOfReplicas)).get()
         );
         ensureGreen();
@@ -294,6 +298,7 @@ public class FlushIT extends ESIntegTestCase {
         assertAcked(
             prepareCreate("test").setSettings(Settings.builder()
                 .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
+                .put(IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS, false)
                 .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, numberOfReplicas)).get()
         );
         ensureGreen();

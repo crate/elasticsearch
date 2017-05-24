@@ -40,6 +40,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS;
 import static org.elasticsearch.cluster.routing.ShardRoutingState.INITIALIZING;
 import static org.elasticsearch.cluster.routing.ShardRoutingState.RELOCATING;
 import static org.elasticsearch.cluster.routing.ShardRoutingState.STARTED;
@@ -61,7 +62,9 @@ public class SingleShardNoReplicasRoutingTests extends ESAllocationTestCase {
         logger.info("Building initial routing table");
 
         MetaData metaData = MetaData.builder()
-                .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)).numberOfShards(1).numberOfReplicas(0))
+                .put(IndexMetaData.builder("test").settings(settings(Version.CURRENT)
+                    .put(SETTING_AUTO_EXPAND_REPLICAS, false)
+                ).numberOfShards(1).numberOfReplicas(0))
                 .build();
 
         RoutingTable initialRoutingTable = RoutingTable.builder().addAsNew(metaData.index("test")).build();
@@ -217,7 +220,9 @@ public class SingleShardNoReplicasRoutingTests extends ESAllocationTestCase {
 
         MetaData.Builder metaDataBuilder = MetaData.builder();
         for (int i = 0; i < numberOfIndices; i++) {
-            metaDataBuilder.put(IndexMetaData.builder("test" + i).settings(settings(Version.CURRENT)).numberOfShards(1).numberOfReplicas(0));
+            metaDataBuilder.put(IndexMetaData.builder("test" + i).settings(settings(Version.CURRENT)
+                .put(SETTING_AUTO_EXPAND_REPLICAS, false)
+            ).numberOfShards(1).numberOfReplicas(0));
         }
         MetaData metaData = metaDataBuilder.build();
 
@@ -323,7 +328,9 @@ public class SingleShardNoReplicasRoutingTests extends ESAllocationTestCase {
 
         MetaData.Builder metaDataBuilder = MetaData.builder();
         for (int i = 0; i < numberOfIndices; i++) {
-            metaDataBuilder.put(IndexMetaData.builder("test" + i).settings(settings(Version.CURRENT)).numberOfShards(1).numberOfReplicas(0));
+            metaDataBuilder.put(IndexMetaData.builder("test" + i).settings(settings(Version.CURRENT)
+                .put(SETTING_AUTO_EXPAND_REPLICAS, false)
+            ).numberOfShards(1).numberOfReplicas(0));
         }
         MetaData metaData = metaDataBuilder.build();
 
