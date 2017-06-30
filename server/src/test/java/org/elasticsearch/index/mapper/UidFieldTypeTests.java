@@ -43,14 +43,6 @@ public class UidFieldTypeTests extends FieldTypeTestCase {
         return new UidFieldMapper.UidFieldType();
     }
 
-    public void testRangeQuery() {
-        MappedFieldType ft = createDefaultFieldType();
-        ft.setName("_uid");
-        IllegalArgumentException e = expectThrows(IllegalArgumentException.class,
-                () -> ft.rangeQuery(null, null, randomBoolean(), randomBoolean(), null, null, null, null));
-        assertEquals("Field [_uid] of type [_uid] does not support range queries", e.getMessage());
-    }
-
     public void testTermsQueryWhenTypesAreEnabled() throws Exception {
         QueryShardContext context = Mockito.mock(QueryShardContext.class);
         Settings indexSettings = Settings.builder()
