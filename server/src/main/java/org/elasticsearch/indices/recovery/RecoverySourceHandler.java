@@ -97,7 +97,7 @@ public class RecoverySourceHandler {
 
     protected final RecoveryResponse response;
 
-    private final CancellableThreads cancellableThreads = new CancellableThreads() {
+    protected final CancellableThreads cancellableThreads = new CancellableThreads() {
         @Override
         protected void onCancel(String reason, @Nullable Exception suppressedException) {
             RuntimeException e;
@@ -208,6 +208,12 @@ public class RecoverySourceHandler {
              */
             cancellableThreads.execute(() -> shard.waitForOpsToComplete(endingSeqNo));
 
+            // CRATE_PATCH
+            try {
+                blobRecoveryHook();
+            } catch (Exception e) {
+                throw new RecoveryEngineException(shard.shardId(), 1, "blobRecoveryHook failed", e);
+            }
             if (logger.isTraceEnabled()) {
                 logger.trace("all operations up to [{}] completed, which will be used as an ending sequence number", endingSeqNo);
                 logger.trace("snapshot translog for recovery; current size is [{}]",
@@ -274,6 +280,10 @@ public class RecoverySourceHandler {
                 });
             }
         });
+    }
+
+    // CRATE_PATCH: used by BlobRecoveryHandler
+    protected void blobRecoveryHook() throws Exception {
     }
 
     /**

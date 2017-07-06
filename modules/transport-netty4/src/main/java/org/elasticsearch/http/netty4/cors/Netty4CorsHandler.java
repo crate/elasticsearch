@@ -23,13 +23,13 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.util.ReferenceCounted;
 import org.elasticsearch.common.Strings;
 
 import java.util.regex.Pattern;
@@ -49,7 +49,7 @@ public class Netty4CorsHandler extends ChannelDuplexHandler {
     private static Pattern SCHEME_PATTERN = Pattern.compile("^https?://");
 
     private final Netty4CorsConfig config;
-    private FullHttpRequest request;
+    private HttpRequest request;
 
     /**
      * Creates a new instance with the specified {@link Netty4CorsConfig}.
@@ -63,9 +63,8 @@ public class Netty4CorsHandler extends ChannelDuplexHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        assert msg instanceof FullHttpRequest : "Invalid message type: " + msg.getClass();
-        if (config.isCorsSupportEnabled()) {
-            request = (FullHttpRequest) msg;
+        if (config.isCorsSupportEnabled() && msg instanceof HttpRequest) {
+            request = (HttpRequest) msg;
             if (isPreflightRequest(request)) {
                 try {
                     handlePreflight(ctx, request);
@@ -124,7 +123,9 @@ public class Netty4CorsHandler extends ChannelDuplexHandler {
     }
 
     private void releaseRequest() {
-        request.release();
+        if (request instanceof ReferenceCounted) {
+            ((ReferenceCounted) request).release();
+        }
         request = null;
     }
 
