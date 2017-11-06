@@ -85,11 +85,11 @@ public final class AutoExpandReplicas {
         this.enabled = enabled;
     }
 
-    int getMinReplicas() {
+    public int getMinReplicas() {
         return minReplicas;
     }
 
-    int getMaxReplicas(int numDataNodes) {
+    public int getMaxReplicas(int numDataNodes) {
         return Math.min(maxReplicas, numDataNodes-1);
     }
 
@@ -116,7 +116,7 @@ public final class AutoExpandReplicas {
         return enabled ? minReplicas + "-" + maxReplicas : "false";
     }
 
-    boolean isEnabled() {
+    public boolean isEnabled() {
         return enabled;
     }
 
