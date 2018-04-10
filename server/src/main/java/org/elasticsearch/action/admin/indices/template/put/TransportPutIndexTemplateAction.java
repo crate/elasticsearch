@@ -65,12 +65,12 @@ public class TransportPutIndexTemplateAction extends TransportMasterNodeAction<P
     }
 
     @Override
-    protected ClusterBlockException checkBlock(PutIndexTemplateRequest request, ClusterState state) {
+    public ClusterBlockException checkBlock(PutIndexTemplateRequest request, ClusterState state) {
         return state.blocks().globalBlockedException(ClusterBlockLevel.METADATA_WRITE);
     }
 
     @Override
-    protected void masterOperation(final PutIndexTemplateRequest request, final ClusterState state, final ActionListener<AcknowledgedResponse> listener) {
+    public void masterOperation(final PutIndexTemplateRequest request, final ClusterState state, final ActionListener<AcknowledgedResponse> listener) {
         String cause = request.cause();
         if (cause.length() == 0) {
             cause = "api";

@@ -1184,7 +1184,7 @@ public abstract class Engine implements Closeable {
         }
     }
 
-    public static final class Searcher implements Releasable {
+    public static class Searcher implements Releasable {
         private final String source;
         private final IndexSearcher searcher;
         private final Closeable onClose;
