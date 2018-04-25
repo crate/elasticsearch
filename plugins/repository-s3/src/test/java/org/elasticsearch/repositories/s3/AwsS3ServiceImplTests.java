@@ -24,8 +24,6 @@ import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import org.elasticsearch.common.settings.MockSecureSettings;
-import org.elasticsearch.common.settings.SecureSetting;
-import org.elasticsearch.common.settings.Setting;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.test.ESTestCase;
 
@@ -59,15 +57,6 @@ public class AwsS3ServiceImplTests extends ESTestCase {
         secureSettings.setString("s3.client.default.secret_key", "wrong_secret");
         Settings settings = Settings.builder().setSecureSettings(secureSettings).build();
         assertCredentials(repositorySettings, settings, "aws_key", "aws_secret");
-    }
-
-    public void testRepositorySettingsCredentialsDisallowed() {
-        Settings repositorySettings = Settings.builder()
-            .put(S3Repository.ACCESS_KEY_SETTING.getKey(), "aws_key")
-            .put(S3Repository.SECRET_KEY_SETTING.getKey(), "aws_secret").build();
-        IllegalArgumentException e = expectThrows(IllegalArgumentException.class, () ->
-            assertCredentials(repositorySettings, Settings.EMPTY, "aws_key", "aws_secret"));
-        assertThat(e.getMessage(), containsString("Setting [access_key] is insecure"));
     }
 
     public void testRepositorySettingsCredentialsMissingKey() {

@@ -123,9 +123,6 @@ class InternalAwsS3Service extends AbstractLifecycleComponent implements AwsS3Se
                  SecureString secret = S3Repository.SECRET_KEY_SETTING.get(repositorySettings)) {
                 credentials = new BasicAWSCredentials(key.toString(), secret.toString());
             }
-            // backcompat for reading keys out of repository settings
-            deprecationLogger.deprecated("Using s3 access/secret key from repository settings. Instead " +
-                "store these in named clients and the elasticsearch keystore for secure settings.");
         } else if (S3Repository.SECRET_KEY_SETTING.exists(repositorySettings)) {
             throw new IllegalArgumentException("Repository setting [" + S3Repository.SECRET_KEY_SETTING.getKey() +
                 " must be accompanied by setting [" + S3Repository.ACCESS_KEY_SETTING.getKey() + "]");
