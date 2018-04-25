@@ -47,10 +47,10 @@ interface AwsEc2Service {
     }
 
     /** The access key (ie login id) for connecting to ec2. */
-    Setting<SecureString> ACCESS_KEY_SETTING = SecureSetting.secureString("discovery.ec2.access_key", null);
+    Setting<SecureString> ACCESS_KEY_SETTING = SecureSetting.insecureString("discovery.ec2.access_key");
 
     /** The secret key (ie password) for connecting to ec2. */
-    Setting<SecureString> SECRET_KEY_SETTING = SecureSetting.secureString("discovery.ec2.secret_key", null);
+    Setting<SecureString> SECRET_KEY_SETTING = SecureSetting.insecureString("discovery.ec2.secret_key");
 
     /** An override for the ec2 endpoint to connect to. */
     Setting<String> ENDPOINT_SETTING = new Setting<>("discovery.ec2.endpoint", "",
@@ -67,10 +67,10 @@ interface AwsEc2Service {
     Setting<Integer> PROXY_PORT_SETTING = Setting.intSetting("discovery.ec2.proxy.port", 80, 0, 1<<16, Property.NodeScope);
 
     /** The username of a proxy to connect to s3 through. */
-    Setting<SecureString> PROXY_USERNAME_SETTING = SecureSetting.secureString("discovery.ec2.proxy.username", null);
+    Setting<SecureString> PROXY_USERNAME_SETTING = SecureSetting.insecureString("discovery.ec2.proxy.username");
 
     /** The password of a proxy to connect to s3 through. */
-    Setting<SecureString> PROXY_PASSWORD_SETTING =  SecureSetting.secureString("discovery.ec2.proxy.password", null);
+    Setting<SecureString> PROXY_PASSWORD_SETTING =  SecureSetting.insecureString("discovery.ec2.proxy.password");
 
     /** The socket timeout for connecting to s3. */
     Setting<TimeValue> READ_TIMEOUT_SETTING = Setting.timeSetting("discovery.ec2.read_timeout",

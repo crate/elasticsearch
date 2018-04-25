@@ -24,14 +24,9 @@ import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import org.elasticsearch.common.settings.MockSecureSettings;
-import org.elasticsearch.common.settings.Setting;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.discovery.ec2.AwsEc2Service;
-import org.elasticsearch.discovery.ec2.AwsEc2ServiceImpl;
 import org.elasticsearch.test.ESTestCase;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -44,10 +39,10 @@ public class AwsEc2ServiceImplTests extends ESTestCase {
     }
 
     public void testAWSCredentialsWithElasticsearchAwsSettings() {
-        MockSecureSettings secureSettings = new MockSecureSettings();
-        secureSettings.setString("discovery.ec2.access_key", "aws_key");
-        secureSettings.setString("discovery.ec2.secret_key", "aws_secret");
-        Settings settings = Settings.builder().setSecureSettings(secureSettings).build();
+        Settings settings = Settings.builder()
+            .put(AwsEc2Service.ACCESS_KEY_SETTING.getKey(), "aws_key")
+            .put(AwsEc2Service.SECRET_KEY_SETTING.getKey(), "aws_secret")
+            .build();
         launchAWSCredentialsWithElasticsearchSettingsTest(settings, "aws_key", "aws_secret");
     }
 
@@ -63,15 +58,13 @@ public class AwsEc2ServiceImplTests extends ESTestCase {
     }
 
     public void testAWSConfigurationWithAwsSettings() {
-        MockSecureSettings secureSettings = new MockSecureSettings();
-        secureSettings.setString("discovery.ec2.proxy.username", "aws_proxy_username");
-        secureSettings.setString("discovery.ec2.proxy.password", "aws_proxy_password");
         Settings settings = Settings.builder()
             .put("discovery.ec2.protocol", "http")
             .put("discovery.ec2.proxy.host", "aws_proxy_host")
             .put("discovery.ec2.proxy.port", 8080)
             .put("discovery.ec2.read_timeout", "10s")
-            .setSecureSettings(secureSettings)
+            .put("discovery.ec2.proxy.username", "aws_proxy_username")
+            .put("discovery.ec2.proxy.password", "aws_proxy_password")
             .build();
         launchAWSConfigurationTest(settings, Protocol.HTTP, "aws_proxy_host", 8080, "aws_proxy_username", "aws_proxy_password", 10000);
     }
