@@ -23,7 +23,6 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
-import org.elasticsearch.common.settings.MockSecureSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.test.ESTestCase;
 
@@ -41,21 +40,21 @@ public class AwsS3ServiceImplTests extends ESTestCase {
     }
 
     public void testAwsCredsDefaultSettings() {
-        MockSecureSettings secureSettings = new MockSecureSettings();
-        secureSettings.setString("s3.client.default.access_key", "aws_key");
-        secureSettings.setString("s3.client.default.secret_key", "aws_secret");
-        Settings settings = Settings.builder().setSecureSettings(secureSettings).build();
+        Settings settings = Settings.builder()
+                                    .put("s3.client.default.access_key", "aws_key")
+                                    .put("s3.client.default.secret_key", "aws_secret")
+                                    .build();
         assertCredentials(Settings.EMPTY, settings, "aws_key", "aws_secret");
     }
 
     public void testAwsCredsExplicitConfigSettings() {
         Settings repositorySettings = Settings.builder().put(InternalAwsS3Service.CLIENT_NAME.getKey(), "myconfig").build();
-        MockSecureSettings secureSettings = new MockSecureSettings();
-        secureSettings.setString("s3.client.myconfig.access_key", "aws_key");
-        secureSettings.setString("s3.client.myconfig.secret_key", "aws_secret");
-        secureSettings.setString("s3.client.default.access_key", "wrong_key");
-        secureSettings.setString("s3.client.default.secret_key", "wrong_secret");
-        Settings settings = Settings.builder().setSecureSettings(secureSettings).build();
+        Settings settings = Settings.builder()
+                                    .put("s3.client.myconfig.access_key", "aws_key")
+                                    .put("s3.client.myconfig.secret_key", "aws_secret")
+                                    .put("s3.client.default.access_key", "wrong_key")
+                                    .put("s3.client.default.secret_key", "wrong_secret")
+                                    .build();
         assertCredentials(repositorySettings, settings, "aws_key", "aws_secret");
     }
 
@@ -89,11 +88,9 @@ public class AwsS3ServiceImplTests extends ESTestCase {
     }
 
     public void testAWSConfigurationWithAwsSettings() {
-        MockSecureSettings secureSettings = new MockSecureSettings();
-        secureSettings.setString("s3.client.default.proxy.username", "aws_proxy_username");
-        secureSettings.setString("s3.client.default.proxy.password", "aws_proxy_password");
         Settings settings = Settings.builder()
-            .setSecureSettings(secureSettings)
+            .put("s3.client.default.proxy.username", "aws_proxy_username")
+            .put("s3.client.default.proxy.password", "aws_proxy_password")
             .put("s3.client.default.protocol", "http")
             .put("s3.client.default.proxy.host", "aws_proxy_host")
             .put("s3.client.default.proxy.port", 8080)
