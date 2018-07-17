@@ -107,7 +107,7 @@ public final class ActiveShardCount implements Writeable {
     public static ActiveShardCount parseString(final String str) {
         if (str == null) {
             return ActiveShardCount.DEFAULT;
-        } else if (str.equals("all")) {
+        } else if (str.equalsIgnoreCase("all")) {
             return ActiveShardCount.ALL;
         } else {
             int val;
