@@ -19,11 +19,8 @@
 
 package org.elasticsearch.repositories.s3;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
 import com.amazonaws.ClientConfiguration;
+import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -40,6 +37,10 @@ import org.elasticsearch.common.logging.DeprecationLogger;
 import org.elasticsearch.common.settings.SecureString;
 import org.elasticsearch.common.settings.Setting;
 import org.elasticsearch.common.settings.Settings;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 
 class InternalAwsS3Service extends AbstractLifecycleComponent implements AwsS3Service {
@@ -77,8 +78,9 @@ class InternalAwsS3Service extends AbstractLifecycleComponent implements AwsS3Se
 
         client = new AmazonS3Client(credentials, configuration);
 
-        if (Strings.hasText(clientSettings.endpoint)) {
-            client.setEndpoint(clientSettings.endpoint);
+        String endpoint = buildEndpoint(repositorySettings, clientSettings);
+        if (Strings.hasText(endpoint)) {
+            client.setEndpoint(endpoint);
         }
 
         clientsCache.put(clientName, client);
@@ -91,7 +93,18 @@ class InternalAwsS3Service extends AbstractLifecycleComponent implements AwsS3Se
         // the response metadata cache is only there for diagnostics purposes,
         // but can force objects from every response to the old generation.
         clientConfiguration.setResponseMetadataCacheSize(0);
-        clientConfiguration.setProtocol(clientSettings.protocol);
+
+        Protocol protocol = getRepoValue(repositorySettings, S3Repository.PROTOCOL_SETTING, clientSettings.protocol);
+        clientConfiguration.setProtocol(protocol);
+
+        Integer maxRetries = getRepoValue(repositorySettings, S3Repository.MAX_RETRIES_SETTING, clientSettings.maxRetries);
+        if (maxRetries != null) {
+            // If not explicitly set, default to 3 with exponential backoff policy
+            clientConfiguration.setMaxErrorRetry(maxRetries);
+        }
+        boolean useThrottleRetries = getRepoValue(repositorySettings,
+            S3Repository.USE_THROTTLE_RETRIES_SETTING, clientSettings.throttleRetries);
+        clientConfiguration.setUseThrottleRetries(useThrottleRetries);
 
         if (Strings.hasText(clientSettings.proxyHost)) {
             // TODO: remove this leniency, these settings should exist together and be validated
@@ -101,8 +114,6 @@ class InternalAwsS3Service extends AbstractLifecycleComponent implements AwsS3Se
             clientConfiguration.setProxyPassword(clientSettings.proxyPassword);
         }
 
-        clientConfiguration.setMaxErrorRetry(clientSettings.maxRetries);
-        clientConfiguration.setUseThrottleRetries(clientSettings.throttleRetries);
         clientConfiguration.setSocketTimeout(clientSettings.readTimeoutMillis);
 
         return clientConfiguration;
@@ -134,6 +145,10 @@ class InternalAwsS3Service extends AbstractLifecycleComponent implements AwsS3Se
             logger.debug("Using basic key/secret credentials");
             return new StaticCredentialsProvider(credentials);
         }
+    }
+
+    static String buildEndpoint(Settings repositorySettings, S3ClientSettings clientSettings) {
+        return getRepoValue(repositorySettings, S3Repository.ENDPOINT_SETTING, clientSettings.endpoint);
     }
 
     /** Returns the value for a given setting from the repository, or returns the fallback value. */

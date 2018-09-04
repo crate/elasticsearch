@@ -153,4 +153,32 @@ public class AwsS3ServiceImplTests extends ESTestCase {
         assertThat(clientSettings.endpoint, is(expectedEndpoint));
     }
 
+    public void testRepositorySettings() {
+        Settings repositorySettings = Settings.builder()
+            .put(S3Repository.PROTOCOL_SETTING.getKey(), "http")
+            .put(S3Repository.MAX_RETRIES_SETTING.getKey(), 2)
+            .put(S3Repository.USE_THROTTLE_RETRIES_SETTING.getKey(), false)
+            .build();
+        launchAWSConfigurationTest(
+            Settings.EMPTY,
+            repositorySettings,
+            Protocol.HTTP,
+            null,
+            -1,
+            null,
+            null,
+            2,
+            false,
+            50000);
+    }
+
+    public void testRepositoryEndpointSetting() {
+        Settings repositorySettings = Settings.builder()
+            .put(S3Repository.ENDPOINT_SETTING.getKey(), "custom.endpoint")
+            .build();
+        String configName = InternalAwsS3Service.CLIENT_NAME.get(repositorySettings);
+        S3ClientSettings clientSettings = S3ClientSettings.getClientSettings(Settings.EMPTY, configName);
+
+        assertThat(InternalAwsS3Service.buildEndpoint(repositorySettings, clientSettings), is("custom.endpoint"));
+    }
 }

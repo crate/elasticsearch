@@ -19,6 +19,8 @@
 
 package org.elasticsearch.repositories.s3;
 
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.Protocol;
 import com.amazonaws.services.s3.AmazonS3;
 import org.elasticsearch.cluster.metadata.RepositoryMetaData;
 import org.elasticsearch.common.Strings;
@@ -36,6 +38,7 @@ import org.elasticsearch.repositories.RepositoryException;
 import org.elasticsearch.repositories.blobstore.BlobStoreRepository;
 
 import java.io.IOException;
+import java.util.Locale;
 
 /**
  * Shared file system implementation of the BlobStoreRepository
@@ -58,6 +61,15 @@ class S3Repository extends BlobStoreRepository {
 
     /** The secret key to authenticate with s3. This setting is insecure because cluster settings are stored in cluster state */
     static final Setting<SecureString> SECRET_KEY_SETTING = SecureSetting.insecureString("secret_key");
+
+    static final Setting<String> ENDPOINT_SETTING = Setting.simpleString("endpoint");
+
+    static final Setting<Protocol> PROTOCOL_SETTING = new Setting<>("protocol", "https", s -> Protocol.valueOf(s.toUpperCase(Locale.ROOT)));
+
+    static final Setting<Integer> MAX_RETRIES_SETTING = Setting.intSetting("max_retries", 3);
+
+    static final Setting<Boolean> USE_THROTTLE_RETRIES_SETTING = Setting.boolSetting("use_throttle_retries",
+        ClientConfiguration.DEFAULT_THROTTLE_RETRIES);
 
     /**
      * Default is to use 100MB (S3 defaults) for heaps above 2GB and 5% of
