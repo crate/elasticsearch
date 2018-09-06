@@ -241,7 +241,7 @@ public class IndexingSlowLogTests extends ESTestCase {
         assertThat(e.getCause(), instanceOf(IllegalArgumentException.class));
         final IllegalArgumentException cause = (IllegalArgumentException) e.getCause();
         final String causeExpected =
-                "failed to parse setting [" + key + "] with value [NOT A TIME VALUE] as a time value: unit is missing or unrecognized";
+                "failed to parse [NOT A TIME VALUE]";
         assertThat(cause, hasToString(containsString(causeExpected)));
     }
 

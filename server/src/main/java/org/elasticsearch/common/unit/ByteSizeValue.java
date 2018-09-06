@@ -223,10 +223,8 @@ public class ByteSizeValue implements Writeable, Comparable<ByteSizeValue>, ToXC
             // Allow this special value to be unit-less:
             return new ByteSizeValue(0, ByteSizeUnit.BYTES);
         } else {
-            // Missing units:
-            throw new ElasticsearchParseException(
-                    "failed to parse setting [{}] with value [{}] as a size in bytes: unit is missing or unrecognized", settingName,
-                    sValue);
+            // Missing units == expect bytes
+            return parse(sValue, lowerSValue, "", ByteSizeUnit.BYTES, settingName);
         }
     }
 
@@ -239,12 +237,10 @@ public class ByteSizeValue implements Writeable, Comparable<ByteSizeValue>, ToXC
             } catch (final NumberFormatException e) {
                 try {
                     final double doubleValue = Double.parseDouble(s);
-                    DEPRECATION_LOGGER.deprecated(
-                            "Fractional bytes values are deprecated. Use non-fractional bytes values instead: [{}] found for setting [{}]",
-                            initialInput, settingName);
                     return new ByteSizeValue((long) (doubleValue * unit.toBytes(1)));
                 } catch (final NumberFormatException ignored) {
-                    throw new ElasticsearchParseException("failed to parse [{}]", e, initialInput);
+                    throw new ElasticsearchParseException("failed to parse setting [{}] with value [{}] as a size in bytes", e, settingName,
+                        initialInput);
                 }
             }
         } catch (IllegalArgumentException e) {

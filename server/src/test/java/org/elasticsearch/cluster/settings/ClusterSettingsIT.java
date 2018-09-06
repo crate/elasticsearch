@@ -39,7 +39,6 @@ import java.util.Arrays;
 
 import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertAcked;
 import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertBlocked;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -274,7 +273,7 @@ public class ClusterSettingsIT extends ESIntegTestCase {
                     .get();
             fail("bogus value");
         } catch (IllegalArgumentException ex) {
-            assertEquals(ex.getMessage(), "failed to parse setting [discovery.zen.publish_timeout] with value [whatever] as a time value: unit is missing or unrecognized");
+            assertEquals(ex.getMessage(), "failed to parse [whatever] as a time value");
         }
 
         assertThat(discoverySettings.getPublishTimeout().seconds(), equalTo(1L));
@@ -338,18 +337,6 @@ public class ClusterSettingsIT extends ESIntegTestCase {
         assertThat(response.getTransientSettings().get(key2), nullValue());
         assertThat(response.getPersistentSettings().get(key1), nullValue());
         assertThat(response.getPersistentSettings().get(key2), notNullValue());
-    }
-
-    public void testMissingUnits() {
-        assertAcked(prepareCreate("test"));
-
-        try {
-            client().admin().indices().prepareUpdateSettings("test").setSettings(Settings.builder().put("index.refresh_interval", "10")).execute().actionGet();
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), containsString("[index.refresh_interval] with value [10]"));
-            assertThat(e.getMessage(), containsString("unit is missing or unrecognized"));
-        }
     }
 
     public void testLoggerLevelUpdate() {

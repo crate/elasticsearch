@@ -99,16 +99,7 @@ public class SettingTests extends ESTestCase {
         assertThat(byteSizeValue.getBytes(), equalTo(2048L));
         AtomicReference<ByteSizeValue> value = new AtomicReference<>(null);
         ClusterSettings.SettingUpdater<ByteSizeValue> settingUpdater = byteSizeValueSetting.newUpdater(value::set, logger);
-
-        final IllegalArgumentException e = expectThrows(
-                IllegalArgumentException.class,
-                () -> settingUpdater.apply(Settings.builder().put("a.byte.size", 12).build(), Settings.EMPTY));
-        assertThat(e, hasToString(containsString("illegal value can't update [a.byte.size] from [2048b] to [12]")));
-        assertNotNull(e.getCause());
-        assertThat(e.getCause(), instanceOf(IllegalArgumentException.class));
-        final IllegalArgumentException cause = (IllegalArgumentException) e.getCause();
-        final String expected = "failed to parse setting [a.byte.size] with value [12] as a size in bytes: unit is missing or unrecognized";
-        assertThat(cause, hasToString(containsString(expected)));
+        assertTrue(settingUpdater.apply(Settings.builder().put("a.byte.size", 12).build(), Settings.EMPTY));
         assertTrue(settingUpdater.apply(Settings.builder().put("a.byte.size", "12b").build(), Settings.EMPTY));
         assertThat(value.get(), equalTo(new ByteSizeValue(12)));
     }
@@ -136,19 +127,7 @@ public class SettingTests extends ESTestCase {
 
         AtomicReference<ByteSizeValue> value = new AtomicReference<>(null);
         ClusterSettings.SettingUpdater<ByteSizeValue> settingUpdater = memorySizeValueSetting.newUpdater(value::set, logger);
-        try {
-            settingUpdater.apply(Settings.builder().put("a.byte.size", 12).build(), Settings.EMPTY);
-            fail("no unit");
-        } catch (IllegalArgumentException ex) {
-            assertThat(ex, hasToString(containsString("illegal value can't update [a.byte.size] from [25%] to [12]")));
-            assertNotNull(ex.getCause());
-            assertThat(ex.getCause(), instanceOf(IllegalArgumentException.class));
-            final IllegalArgumentException cause = (IllegalArgumentException) ex.getCause();
-            final String expected =
-                    "failed to parse setting [a.byte.size] with value [12] as a size in bytes: unit is missing or unrecognized";
-            assertThat(cause, hasToString(containsString(expected)));
-        }
-
+        assertTrue(settingUpdater.apply(Settings.builder().put("a.byte.size", 12).build(), Settings.EMPTY));
         assertTrue(settingUpdater.apply(Settings.builder().put("a.byte.size", "12b").build(), Settings.EMPTY));
         assertEquals(new ByteSizeValue(12), value.get());
 

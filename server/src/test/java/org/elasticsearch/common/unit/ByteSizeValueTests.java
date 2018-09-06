@@ -123,31 +123,26 @@ public class ByteSizeValueTests extends AbstractWireSerializingTestCase<ByteSize
         assertThat(ByteSizeValue.parseBytesSizeValue("1 b", "testParsing").toString(), is("1b"));
     }
 
-    public void testFailOnMissingUnits() {
-        Exception e = expectThrows(ElasticsearchParseException.class, () -> ByteSizeValue.parseBytesSizeValue("23", "test"));
-        assertThat(e.getMessage(), containsString("failed to parse setting [test]"));
-    }
-
     public void testFailOnUnknownUnits() {
         Exception e = expectThrows(ElasticsearchParseException.class, () -> ByteSizeValue.parseBytesSizeValue("23jw", "test"));
-        assertThat(e.getMessage(), containsString("failed to parse setting [test]"));
+        assertThat(e.getMessage(), containsString("failed to parse setting [test] with value [23jw] as a size in bytes"));
     }
 
     public void testFailOnEmptyParsing() {
         Exception e = expectThrows(ElasticsearchParseException.class,
                 () -> assertThat(ByteSizeValue.parseBytesSizeValue("", "emptyParsing").toString(), is("23kb")));
-        assertThat(e.getMessage(), containsString("failed to parse setting [emptyParsing]"));
+        assertThat(e.getMessage(), containsString("failed to parse setting [emptyParsing] with value [] as a size in bytes"));
     }
 
     public void testFailOnEmptyNumberParsing() {
         Exception e = expectThrows(ElasticsearchParseException.class,
                 () -> assertThat(ByteSizeValue.parseBytesSizeValue("g", "emptyNumberParsing").toString(), is("23b")));
-        assertThat(e.getMessage(), containsString("failed to parse [g]"));
+        assertThat(e.getMessage(), containsString("failed to parse setting [emptyNumberParsing] with value [g] as a size in bytes"));
     }
 
     public void testNoDotsAllowed() {
         Exception e = expectThrows(ElasticsearchParseException.class, () -> ByteSizeValue.parseBytesSizeValue("42b.", null, "test"));
-        assertThat(e.getMessage(), containsString("failed to parse setting [test]"));
+        assertThat(e.getMessage(), containsString("failed to parse setting [test] with value [42b.] as a size in bytes"));
     }
 
     public void testCompareEquality() {
@@ -300,20 +295,10 @@ public class ByteSizeValueTests extends AbstractWireSerializingTestCase<ByteSize
     public void testParseInvalidNumber() throws IOException {
         ElasticsearchParseException exception = expectThrows(ElasticsearchParseException.class,
                 () -> ByteSizeValue.parseBytesSizeValue("notANumber", "test"));
-        assertEquals("failed to parse setting [test] with value [notANumber] as a size in bytes: unit is missing or unrecognized",
-                exception.getMessage());
+        assertEquals("failed to parse setting [test] with value [notANumber] as a size in bytes", exception.getMessage());
 
         exception = expectThrows(ElasticsearchParseException.class, () -> ByteSizeValue.parseBytesSizeValue("notANumberMB", "test"));
-        assertEquals("failed to parse [notANumberMB]", exception.getMessage());
-    }
-
-    public void testParseFractionalNumber() throws IOException {
-        ByteSizeUnit unit = randomValueOtherThan(ByteSizeUnit.BYTES, () -> randomFrom(ByteSizeUnit.values()));
-        String fractionalValue = "23.5" + unit.getSuffix();
-        ByteSizeValue instance = ByteSizeValue.parseBytesSizeValue(fractionalValue, "test");
-        assertEquals(fractionalValue, instance.toString());
-        assertWarnings("Fractional bytes values are deprecated. Use non-fractional bytes values instead: [" + fractionalValue
-                + "] found for setting [test]");
+        assertEquals("failed to parse setting [test] with value [notANumberMB] as a size in bytes", exception.getMessage());
     }
 
     public void testGetBytesAsInt() {

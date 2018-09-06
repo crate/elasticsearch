@@ -158,15 +158,6 @@ public class TimeValueTests extends ESTestCase {
         }
     }
 
-    public void testFailOnMissingUnits() {
-        try {
-            TimeValue.parseTimeValue("42", null, "test");
-            fail("Expected ElasticsearchParseException");
-        } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), containsString("failed to parse"));
-        }
-    }
-
     public void testNoDotsAllowed() {
         try {
             TimeValue.parseTimeValue("42ms.", null, "test");

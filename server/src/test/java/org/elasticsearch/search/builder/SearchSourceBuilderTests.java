@@ -49,10 +49,8 @@ import org.elasticsearch.test.EqualsHashCodeTestUtils;
 import java.io.IOException;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasToString;
 
 public class SearchSourceBuilderTests extends AbstractSearchTestCase {
 
@@ -338,16 +336,6 @@ public class SearchSourceBuilderTests extends AbstractSearchTestCase {
         try (XContentParser parser = createParser(JsonXContent.jsonXContent, query)) {
             final SearchSourceBuilder builder = SearchSourceBuilder.fromXContent(parser);
             assertThat(builder.timeout(), equalTo(TimeValue.parseTimeValue(timeout, null, "timeout")));
-        }
-    }
-
-    public void testTimeoutWithoutUnits() throws IOException {
-        final int timeout = randomIntBetween(1, 1024);
-        final String query = "{ \"query\": { \"match_all\": {}}, \"timeout\": \"" + timeout + "\"}";
-        try (XContentParser parser = createParser(JsonXContent.jsonXContent, query)) {
-            final IllegalArgumentException e = expectThrows(IllegalArgumentException.class, () -> SearchSourceBuilder.fromXContent(
-                    parser));
-            assertThat(e, hasToString(containsString("unit is missing or unrecognized")));
         }
     }
 

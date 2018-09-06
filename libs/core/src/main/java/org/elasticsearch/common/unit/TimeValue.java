@@ -297,9 +297,8 @@ public class TimeValue implements Comparable<TimeValue> {
         } else if (normalized.matches("0+")) {
             return TimeValue.ZERO;
         } else {
-            // Missing units:
-            throw new IllegalArgumentException("failed to parse setting [" + settingName + "] with value [" + sValue +
-                    "] as a time value: unit is missing or unrecognized");
+            // Missing units == expect milliseconds
+            return new TimeValue(parse(sValue, normalized, ""), TimeUnit.MILLISECONDS);
         }
     }
 
@@ -312,7 +311,7 @@ public class TimeValue implements Comparable<TimeValue> {
                 @SuppressWarnings("unused") final double ignored = Double.parseDouble(s);
                 throw new IllegalArgumentException("failed to parse [" + initialInput + "], fractional time values are not supported", e);
             } catch (final NumberFormatException ignored) {
-                throw new IllegalArgumentException("failed to parse [" + initialInput + "]", e);
+                throw new IllegalArgumentException("failed to parse [" + initialInput + "] as a time value", e);
             }
         }
     }
