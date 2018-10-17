@@ -38,6 +38,8 @@ import org.elasticsearch.index.Index;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.TransportService;
 
+import static org.elasticsearch.common.settings.AbstractScopedSettings.ARCHIVED_SETTINGS_PREFIX;
+
 public class TransportUpdateSettingsAction extends TransportMasterNodeAction<UpdateSettingsRequest, AcknowledgedResponse> {
 
     private final MetaDataUpdateSettingsService updateSettingsService;
@@ -62,10 +64,14 @@ public class TransportUpdateSettingsAction extends TransportMasterNodeAction<Upd
         if (globalBlock != null) {
             return globalBlock;
         }
-        if (request.settings().size() == 1 &&  // we have to allow resetting these settings otherwise users can't unblock an index
-            IndexMetaData.INDEX_BLOCKS_METADATA_SETTING.exists(request.settings())
-            || IndexMetaData.INDEX_READ_ONLY_SETTING.exists(request.settings())
-            || IndexMetaData.INDEX_BLOCKS_READ_ONLY_ALLOW_DELETE_SETTING.exists(request.settings())) {
+
+        // always allow removing of archived settings, so filter them out before doing further block checks
+        Settings settings = request.settings().filter(k -> k.startsWith(ARCHIVED_SETTINGS_PREFIX + "*") == false);
+
+        if (settings.size() == 1 &&  // we have to allow resetting these settings otherwise users can't unblock an index
+            IndexMetaData.INDEX_BLOCKS_METADATA_SETTING.exists(settings)
+            || IndexMetaData.INDEX_READ_ONLY_SETTING.exists(settings)
+            || IndexMetaData.INDEX_BLOCKS_READ_ONLY_ALLOW_DELETE_SETTING.exists(settings)) {
             return null;
         }
         return state.blocks().indicesBlockedException(ClusterBlockLevel.METADATA_WRITE, indexNameExpressionResolver.concreteIndexNames(state, request));
