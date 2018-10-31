@@ -23,7 +23,6 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.Protocol;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.BasicSessionCredentials;
-import org.elasticsearch.common.settings.MockSecureSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.test.ESTestCase;
 
@@ -74,47 +73,46 @@ public class S3ClientSettingsTests extends ESTestCase {
     }
 
     public void testRejectionOfLoneAccessKey() {
-        final MockSecureSettings secureSettings = new MockSecureSettings();
-        secureSettings.setString("s3.client.default.access_key", "aws_key");
+        Settings settings = Settings.builder().put("s3.client.default.access_key", "aws_key").build();
         final IllegalArgumentException e = expectThrows(IllegalArgumentException.class,
-            () -> S3ClientSettings.load(Settings.builder().setSecureSettings(secureSettings).build()));
+            () -> S3ClientSettings.load(settings));
         assertThat(e.getMessage(), is("Missing secret key for s3 client [default]"));
     }
 
     public void testRejectionOfLoneSecretKey() {
-        final MockSecureSettings secureSettings = new MockSecureSettings();
-        secureSettings.setString("s3.client.default.secret_key", "aws_key");
+        Settings settings = Settings.builder().put("s3.client.default.secret_key", "aws_key").build();
         final IllegalArgumentException e = expectThrows(IllegalArgumentException.class,
-            () -> S3ClientSettings.load(Settings.builder().setSecureSettings(secureSettings).build()));
+            () -> S3ClientSettings.load(settings));
         assertThat(e.getMessage(), is("Missing access key for s3 client [default]"));
     }
 
     public void testRejectionOfLoneSessionToken() {
-        final MockSecureSettings secureSettings = new MockSecureSettings();
-        secureSettings.setString("s3.client.default.session_token", "aws_key");
+        Settings settings = Settings.builder().put("s3.client.default.session_token", "aws_key").build();
         final IllegalArgumentException e = expectThrows(IllegalArgumentException.class,
-            () -> S3ClientSettings.load(Settings.builder().setSecureSettings(secureSettings).build()));
+            () -> S3ClientSettings.load(settings));
         assertThat(e.getMessage(), is("Missing access key and secret key for s3 client [default]"));
     }
 
     public void testCredentialsTypeWithAccessKeyAndSecretKey() {
-        final MockSecureSettings secureSettings = new MockSecureSettings();
-        secureSettings.setString("s3.client.default.access_key", "access_key");
-        secureSettings.setString("s3.client.default.secret_key", "secret_key");
-        final Map<String, S3ClientSettings> settings = S3ClientSettings.load(Settings.builder().setSecureSettings(secureSettings).build());
-        final S3ClientSettings defaultSettings = settings.get("default");
+        Settings settings = Settings.builder()
+            .put("s3.client.default.access_key", "access_key")
+            .put("s3.client.default.secret_key", "secret_key")
+            .build();
+        final Map<String, S3ClientSettings> clientSettings = S3ClientSettings.load(settings);
+        final S3ClientSettings defaultSettings = clientSettings.get("default");
         BasicAWSCredentials credentials = (BasicAWSCredentials) defaultSettings.credentials;
         assertThat(credentials.getAWSAccessKeyId(), is("access_key"));
         assertThat(credentials.getAWSSecretKey(), is("secret_key"));
     }
 
     public void testCredentialsTypeWithAccessKeyAndSecretKeyAndSessionToken() {
-        final MockSecureSettings secureSettings = new MockSecureSettings();
-        secureSettings.setString("s3.client.default.access_key", "access_key");
-        secureSettings.setString("s3.client.default.secret_key", "secret_key");
-        secureSettings.setString("s3.client.default.session_token", "session_token");
-        final Map<String, S3ClientSettings> settings = S3ClientSettings.load(Settings.builder().setSecureSettings(secureSettings).build());
-        final S3ClientSettings defaultSettings = settings.get("default");
+        Settings settings = Settings.builder()
+            .put("s3.client.default.access_key", "access_key")
+            .put("s3.client.default.secret_key", "secret_key")
+            .put("s3.client.default.session_token", "session_token")
+            .build();
+        final Map<String, S3ClientSettings> clientSettings = S3ClientSettings.load(settings);
+        final S3ClientSettings defaultSettings = clientSettings.get("default");
         BasicSessionCredentials credentials = (BasicSessionCredentials) defaultSettings.credentials;
         assertThat(credentials.getAWSAccessKeyId(), is("access_key"));
         assertThat(credentials.getAWSSecretKey(), is("secret_key"));

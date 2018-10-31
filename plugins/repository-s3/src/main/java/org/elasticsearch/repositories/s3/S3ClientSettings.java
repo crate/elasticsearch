@@ -48,15 +48,15 @@ final class S3ClientSettings {
 
     /** The access key (ie login id) for connecting to s3. */
     static final Setting.AffixSetting<SecureString> ACCESS_KEY_SETTING = Setting.affixKeySetting(PREFIX, "access_key",
-        key -> SecureSetting.secureString(key, null));
+        SecureSetting::insecureString);
 
     /** The secret key (ie password) for connecting to s3. */
     static final Setting.AffixSetting<SecureString> SECRET_KEY_SETTING = Setting.affixKeySetting(PREFIX, "secret_key",
-        key -> SecureSetting.secureString(key, null));
+        SecureSetting::insecureString);
 
     /** The secret key (ie password) for connecting to s3. */
     static final Setting.AffixSetting<SecureString> SESSION_TOKEN_SETTING = Setting.affixKeySetting(PREFIX, "session_token",
-        key -> SecureSetting.secureString(key, null));
+        SecureSetting::insecureString);
 
     /** An override for the s3 endpoint to connect to. */
     static final Setting.AffixSetting<String> ENDPOINT_SETTING = Setting.affixKeySetting(PREFIX, "endpoint",
@@ -76,11 +76,11 @@ final class S3ClientSettings {
 
     /** The username of a proxy to connect to s3 through. */
     static final Setting.AffixSetting<SecureString> PROXY_USERNAME_SETTING = Setting.affixKeySetting(PREFIX, "proxy.username",
-        key -> SecureSetting.secureString(key, null));
+        SecureSetting::insecureString);
 
     /** The password of a proxy to connect to s3 through. */
     static final Setting.AffixSetting<SecureString> PROXY_PASSWORD_SETTING = Setting.affixKeySetting(PREFIX, "proxy.password",
-        key -> SecureSetting.secureString(key, null));
+        SecureSetting::insecureString);
 
     /** The socket timeout for connecting to s3. */
     static final Setting.AffixSetting<TimeValue> READ_TIMEOUT_SETTING = Setting.affixKeySetting(PREFIX, "read_timeout",

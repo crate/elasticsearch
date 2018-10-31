@@ -23,8 +23,6 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.internal.StaticCredentialsProvider;
-
-import org.elasticsearch.common.settings.MockSecureSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.test.ESTestCase;
 
@@ -45,16 +43,15 @@ public class AwsS3ServiceImplTests extends ESTestCase {
     }
 
     public void testAWSCredentialsFromKeystore() {
-        final MockSecureSettings secureSettings = new MockSecureSettings();
+        Settings.Builder builder = Settings.builder();
         final String clientNamePrefix = "some_client_name_";
         final int clientsCount = randomIntBetween(0, 4);
         for (int i = 0; i < clientsCount; i++) {
             final String clientName = clientNamePrefix + i;
-            secureSettings.setString("s3.client." + clientName + ".access_key", clientName + "_aws_access_key");
-            secureSettings.setString("s3.client." + clientName + ".secret_key", clientName + "_aws_secret_key");
+            builder.put("s3.client." + clientName + ".access_key", clientName + "_aws_access_key");
+            builder.put("s3.client." + clientName + ".secret_key", clientName + "_aws_secret_key");
         }
-        final Settings settings = Settings.builder().setSecureSettings(secureSettings).build();
-        final Map<String, S3ClientSettings> allClientsSettings = S3ClientSettings.load(settings);
+        final Map<String, S3ClientSettings> allClientsSettings = S3ClientSettings.load(builder.build());
         // no less, no more
         assertThat(allClientsSettings.size(), is(clientsCount + 1)); // including default
         for (int i = 0; i < clientsCount; i++) {
@@ -72,12 +69,12 @@ public class AwsS3ServiceImplTests extends ESTestCase {
     }
 
     public void testSetDefaultCredential() {
-        final MockSecureSettings secureSettings = new MockSecureSettings();
         final String awsAccessKey = randomAlphaOfLength(8);
         final String awsSecretKey = randomAlphaOfLength(8);
-        secureSettings.setString("s3.client.default.access_key", awsAccessKey);
-        secureSettings.setString("s3.client.default.secret_key", awsSecretKey);
-        final Settings settings = Settings.builder().setSecureSettings(secureSettings).build();
+        final Settings settings = Settings.builder()
+            .put("s3.client.default.access_key", awsAccessKey)
+            .put("s3.client.default.secret_key", awsSecretKey)
+            .build();
         final Map<String, S3ClientSettings> allClientsSettings = S3ClientSettings.load(settings);
         assertThat(allClientsSettings.size(), is(1));
         // test default exists and is an Instance provider
@@ -89,16 +86,15 @@ public class AwsS3ServiceImplTests extends ESTestCase {
     }
 
     public void testCredentialsIncomplete() {
-        final MockSecureSettings secureSettings = new MockSecureSettings();
+        Settings.Builder builder = Settings.builder();
         final String clientName = randomAlphaOfLength(8).toLowerCase(Locale.ROOT);
         final boolean missingOrMissing = randomBoolean();
         if (missingOrMissing) {
-            secureSettings.setString("s3.client." + clientName + ".access_key", "aws_access_key");
+            builder.put("s3.client." + clientName + ".access_key", "aws_access_key");
         } else {
-            secureSettings.setString("s3.client." + clientName + ".secret_key", "aws_secret_key");
+            builder.put("s3.client." + clientName + ".secret_key", "aws_secret_key");
         }
-        final Settings settings = Settings.builder().setSecureSettings(secureSettings).build();
-        final Exception e = expectThrows(IllegalArgumentException.class, () -> S3ClientSettings.load(settings));
+        final Exception e = expectThrows(IllegalArgumentException.class, () -> S3ClientSettings.load(builder.build()));
         if (missingOrMissing) {
             assertThat(e.getMessage(), containsString("Missing secret key for s3 client [" + clientName + "]"));
         } else {
@@ -112,15 +108,13 @@ public class AwsS3ServiceImplTests extends ESTestCase {
     }
 
     public void testAWSConfigurationWithAwsSettings() {
-        final MockSecureSettings secureSettings = new MockSecureSettings();
-        secureSettings.setString("s3.client.default.proxy.username", "aws_proxy_username");
-        secureSettings.setString("s3.client.default.proxy.password", "aws_proxy_password");
         final Settings settings = Settings.builder()
-            .setSecureSettings(secureSettings)
             .put("s3.client.default.protocol", "http")
             .put("s3.client.default.proxy.host", "aws_proxy_host")
             .put("s3.client.default.proxy.port", 8080)
             .put("s3.client.default.read_timeout", "10s")
+            .put("s3.client.default.proxy.username", "aws_proxy_username")
+            .put("s3.client.default.proxy.password", "aws_proxy_password")
             .build();
         launchAWSConfigurationTest(settings, Protocol.HTTP, "aws_proxy_host", 8080, "aws_proxy_username",
             "aws_proxy_password", 3, ClientConfiguration.DEFAULT_THROTTLE_RETRIES, 10000);
