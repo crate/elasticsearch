@@ -82,7 +82,7 @@ final class IndexShardOperationPermits implements Closeable {
         if (Assertions.ENABLED) {
             issuedPermits = new ConcurrentHashMap<>();
         } else {
-            issuedPermits = null;
+            issuedPermits = Collections.emptyMap();
         }
     }
 
