@@ -315,21 +315,7 @@ public abstract class Node implements Closeable {
 
 
             final JvmInfo jvmInfo = JvmInfo.jvmInfo();
-            logger.info(
-                "version[{}], pid[{}], build[{}/{}/{}/{}], OS[{}/{}/{}], JVM[{}/{}/{}/{}]",
-                Version.displayVersion(Version.CURRENT, Build.CURRENT.isSnapshot()),
-                jvmInfo.pid(),
-                Build.CURRENT.flavor().displayName(),
-                Build.CURRENT.type().displayName(),
-                Build.CURRENT.shortHash(),
-                Build.CURRENT.date(),
-                Constants.OS_NAME,
-                Constants.OS_VERSION,
-                Constants.OS_ARCH,
-                Constants.JVM_VENDOR,
-                Constants.JVM_NAME,
-                Constants.JAVA_VERSION,
-                Constants.JVM_VERSION);
+            logVersion(logger, jvmInfo);
             logger.info("JVM arguments {}", Arrays.toString(jvmInfo.getInputArguments()));
             warnIfPreRelease(Version.CURRENT, Build.CURRENT.isSnapshot(), logger);
 
@@ -629,6 +615,24 @@ public abstract class Node implements Closeable {
                 IOUtils.closeWhileHandlingException(resourcesToClose);
             }
         }
+    }
+
+    protected void logVersion(Logger logger, JvmInfo jvmInfo) {
+        logger.info(
+            "version[{}], pid[{}], build[{}/{}/{}/{}], OS[{}/{}/{}], JVM[{}/{}/{}/{}]",
+            Version.displayVersion(Version.CURRENT, Build.CURRENT.isSnapshot()),
+            jvmInfo.pid(),
+            Build.CURRENT.flavor().displayName(),
+            Build.CURRENT.type().displayName(),
+            Build.CURRENT.shortHash(),
+            Build.CURRENT.date(),
+            Constants.OS_NAME,
+            Constants.OS_VERSION,
+            Constants.OS_ARCH,
+            Constants.JVM_VENDOR,
+            Constants.JVM_NAME,
+            Constants.JAVA_VERSION,
+            Constants.JVM_VERSION);
     }
 
     static void warnIfPreRelease(final Version version, final boolean isSnapshot, final Logger logger) {
