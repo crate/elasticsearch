@@ -305,7 +305,7 @@ public class Netty4HttpServerTransportTests extends ESTestCase {
                 try {
                     assertThat(response.status(), equalTo(HttpResponseStatus.BAD_REQUEST));
                     assertThat(
-                        new String(response.content().array(), Charset.forName("UTF-8")),
+                        response.content().toString(StandardCharsets.UTF_8),
                         containsString("you sent a bad request and you should feel bad"));
                 } finally {
                     response.release();
