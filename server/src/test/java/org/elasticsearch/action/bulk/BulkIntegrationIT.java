@@ -56,6 +56,7 @@ public class BulkIntegrationIT extends ESIntegTestCase {
     public void testBulkWithWriteIndexAndRouting() {
         Map<String, Object> twoShardsSettings = new HashMap<>();
         twoShardsSettings.put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 2);
+        twoShardsSettings.put(IndexMetaData.SETTING_WAIT_FOR_ACTIVE_SHARDS.getKey(), 1);
         twoShardsSettings.put(IndexMetaData.SETTING_AUTO_EXPAND_REPLICAS, false);
         client().admin().indices().prepareCreate("index1")
             .addAlias(new Alias("alias1").indexRouting("0")).setSettings(twoShardsSettings).get();
