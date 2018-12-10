@@ -317,7 +317,6 @@ public abstract class Node implements Closeable {
             final JvmInfo jvmInfo = JvmInfo.jvmInfo();
             logVersion(logger, jvmInfo);
             logger.info("JVM arguments {}", Arrays.toString(jvmInfo.getInputArguments()));
-            warnIfPreRelease(Version.CURRENT, Build.CURRENT.isSnapshot(), logger);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("using config [{}], data [{}], logs [{}], plugins [{}]",
@@ -633,6 +632,7 @@ public abstract class Node implements Closeable {
             Constants.JVM_NAME,
             Constants.JAVA_VERSION,
             Constants.JVM_VERSION);
+        warnIfPreRelease(Version.CURRENT, Build.CURRENT.isSnapshot(), logger);
     }
 
     static void warnIfPreRelease(final Version version, final boolean isSnapshot, final Logger logger) {
