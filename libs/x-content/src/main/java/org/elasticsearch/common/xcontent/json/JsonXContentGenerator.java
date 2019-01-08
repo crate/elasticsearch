@@ -513,4 +513,14 @@ public class JsonXContentGenerator implements XContentGenerator {
             }
         }
     }
+
+    @Override
+    public void configure(JsonGenerator.Feature f, boolean state) {
+        generator.configure(f, state);
+    }
+
+    @Override
+    public boolean isEnabled(JsonGenerator.Feature f) {
+        return generator.isEnabled(f);
+    }
 }

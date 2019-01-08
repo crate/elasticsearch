@@ -19,6 +19,8 @@
 
 package org.elasticsearch.common.xcontent;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
@@ -169,4 +171,7 @@ public interface XContentGenerator extends Closeable, Flushable {
      */
     boolean isClosed();
 
+    void configure(JsonGenerator.Feature f, boolean state);
+
+    boolean isEnabled(JsonGenerator.Feature f);
 }
